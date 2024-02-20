@@ -2,7 +2,8 @@ import os
 import psycopg2
 from flask import Flask, render_template, jsonify
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='../app/build', template_folder='../app/build'
+            )
 
 def get_db_connection():
     conn = psycopg2.connect(
@@ -13,7 +14,6 @@ def get_db_connection():
     return conn
     
 # Example of api route that will return all records in a table
-# @app.route('/')
 # def index():
 #     conn = get_db_connection()
 #     cur = conn.cursor()
@@ -22,3 +22,7 @@ def get_db_connection():
 #     cur.close()
 #     conn.close()
 #     return jsonify(books)
+
+@app.route('/')
+def hello():
+    return app.send_static_file("index.html")
