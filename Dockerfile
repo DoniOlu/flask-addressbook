@@ -15,5 +15,8 @@ RUN npm install
 # add app
 COPY . ./
 
+# Describe which ports your application is listening on.
+EXPOSE 5000
+
 # start app
 CMD ["npm", "start"]
