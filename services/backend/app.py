@@ -1,27 +1,84 @@
+import boto3
+from botocore.exceptions import ClientError
 import os
+import json
 import psycopg2, psycopg2.extras
 from flask import Flask, render_template, jsonify, make_response, request
 
 app = Flask(__name__, static_url_path='', static_folder='../app/build', template_folder='../app/build'
             )
 
+def get_secret():
+
+    secret_name = "rds!db-9bf2c9c5-1fa1-4456-8dd2-f73620bb3854"
+    region_name = "us-east-2"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    credentials = session.get_credentials().get_frozen_credentials()
+
+    client = session.client(
+        aws_access_key_id=credentials.access_key,
+        aws_secret_access_key=credentials.secret_key,
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+
+    return get_secret_value_response['SecretString']
+
 def get_db_connection():
+    db_credentials = json.loads(get_secret())
+    user = db_credentials['username']
+    password = db_credentials['password']
     conn = psycopg2.connect(
-        host=os.environ['DB_HOSTNAME'],
-        database=os.environ['DB_NAME'],
-        user=os.environ['DB_USERNAME'],
-        password=os.environ['DB_PASSWORD'])
+        host='address-book-db-1.caj7nng7virt.us-east-2.rds.amazonaws.com',
+        database='postgres',
+        user=user,
+        password=password,
+        port=5432)
     return conn
-    
-# Example of api route that will return all records in a table
-# def index():
-#     conn = get_db_connection()
-#     cur = conn.cursor()
-#     cur.execute('SELECT * FROM books;')
-#     books = cur.fetchall()
-#     cur.close()
-#     conn.close()
-#     return jsonify(books)
+
+
+# Database connection
+conn = psycopg2.connect(
+        host='address-book-db-1.caj7nng7virt.us-east-2.rds.amazonaws.com',
+        database='postgres',
+        user=json.loads(get_secret())['username'],
+        password=json.loads(get_secret())['password'],
+        port=5432)
+
+# Open a cursor to perform database operations
+cur = conn.cursor()
+
+cur.execute('DROP TABLE IF EXISTS ADDRESS_BOOK;')
+cur.execute('CREATE TABLE ADDRESS_BOOK (id serial PRIMARY KEY,'
+                                 'first_name varchar (150) NOT NULL,'
+                                 'last_name varchar (150),'
+                                 'phone varchar (12) NOT NULL,'
+                                 'email varchar (150),'
+                                 'address varchar (200),'
+                                 'birthday date);'
+                                 )
+
+cur.execute('INSERT INTO ADDRESS_BOOK (first_name, phone)'
+            'VALUES (%s, %s);',
+            ('Doni D',
+             '123-456-7890')
+            )
+
+conn.commit()
+
+cur.close()
+conn.close()
 
 @app.route('/')
 def hello():
@@ -37,7 +94,8 @@ def get_all_contacts():
         cur.close()
         conn.close()
         return {'status': 200, 'data': contacts}
-    except:
+    except Exception as error:
+        print('Error:', error)
         return {'status': 500}
 
 # @app.route("/contact/<user_id>", methods=["GET"])
