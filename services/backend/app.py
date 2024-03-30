@@ -98,9 +98,20 @@ def get_all_contacts():
         print('Error:', error)
         return {'status': 500}
 
-# @app.route("/contact/<user_id>", methods=["GET"])
-# def get_contact(user_id):
-#     return {'status': 200}
+@app.route("/contact/<user_id>", methods=["GET"])
+def get_contact(user_id):
+    print('User ID:', user_id)
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute('SELECT * FROM ADDRESS_BOOK WHERE "id" = (%s);', (user_id))
+        contact = cur.fetchall()
+        cur.close()
+        conn.close()
+        return {'status': 200, 'data': contact}
+    except Exception as error:
+        print('Error:', error)
+        return {'status': 500}
 
 @app.route("/contact/add", methods=["PUT"])
 def add_contact():
@@ -120,12 +131,37 @@ def add_contact():
     except: 
         return {'status': 500}
 
-# @app.route("/contact/edit", methods=["POST"])
-# def edit_contact(user):
-#     return {'status': 200}
 
-# @app.route("/contact/delete/<user_id>", methods=["DELETE"])
-# def delete_contact(user):
-#     return {'status': 200}
+
+@app.route("/contact/edit/<user_id>", methods=["POST"])
+def edit_contact(user_id):
+    try:
+        request_payload = request.get_json()
+        update_columns = ", ".join(f"{k} = '{v}'" for k, v in request_payload.items())
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute('UPDATE ADDRESS_BOOK SET ' + update_columns + ' WHERE "id" = (%s);', (user_id))
+        conn.commit()
+
+        cur.close()
+        conn.close()
+        return {'status': 200}
+    except Exception as error:
+        print('Error:', error)
+        return {'status': 500}
+
+@app.route("/contact/delete/<user_id>", methods=["DELETE"])
+def delete_contact(user_id):
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute('DELETE FROM ADDRESS_BOOK WHERE "id" = (%s);', (user_id))
+        conn.commit()
+
+        cur.close()
+        conn.close()
+        return {'status': 200}
+    except:
+        return {'status': 500}
     
 
