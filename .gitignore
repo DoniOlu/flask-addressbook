@@ -24,5 +24,6 @@ yarn-error.log*
 
 services/backend/.venv
 services/backend/venv
+services/frontend/dist
 .env
 services/backend/__pycache__

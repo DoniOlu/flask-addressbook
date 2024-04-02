@@ -1,0 +1,6 @@
+{
+  "watch": [
+      "./mock-server/server.mjs"
+  ],
+  "ext": "js,ts,tsx"
+}
