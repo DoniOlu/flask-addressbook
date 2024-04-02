@@ -1,0 +1,31 @@
+.address-container {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background-color: #23334d;
+  align-items: center;
+  justify-content: center;
+}
+
+.address-side-menu {
+  display: inherit;
+  flex-direction: column;
+  flex: 1;
+  min-height: inherit;
+  border: solid white;
+  border-width: 1px;
+}
+
+.address-details {
+  display: inherit;
+  flex-direction: column;
+  flex: 2;
+  min-height: inherit;
+  border: solid white;
+  border-width: 1px;
+}
+
+.address-contact {
+  min-height: 20px;
+  
+}
