@@ -5,7 +5,7 @@ import json
 import psycopg2, psycopg2.extras
 from flask import Flask, render_template, jsonify, make_response, request
 
-app = Flask(__name__, static_url_path='', static_folder='../app/build', template_folder='../app/build'
+app = Flask(__name__, static_url_path='', static_folder='../frontend/dist', template_folder='../frontend/public'
             )
 
 def get_secret():

@@ -14,7 +14,5 @@ RUN npm install
 
 COPY . .
 
-# start app
-CMD ["npm", "start"]
-
-EXPOSE 3000
+# build app
+CMD ["npm", "build"]
