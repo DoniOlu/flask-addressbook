@@ -27,5 +27,10 @@
 
 .address-contact {
   min-height: 20px;
-  
+}
+
+.contact-dialog {
+  min-height: 75vh;
+  min-width: 60vh;
+  background-color: #23334d;
 }

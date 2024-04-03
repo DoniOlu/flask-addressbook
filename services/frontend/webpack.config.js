@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 
 module.exports = {
   entry: "./src/index.tsx",
@@ -36,8 +37,9 @@ module.exports = {
   plugins: [
     // Add plugins here
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "build", "index.html"),
+      template: path.join(__dirname, "public", "index.html"),
     }),
+    new WebpackManifestPlugin({}),
   ],
   resolve: {
     extensions: [".js", ".jsx", ".tsx", ".ts"],

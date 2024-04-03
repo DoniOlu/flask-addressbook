@@ -10,6 +10,11 @@ module.exports = merge(baseConfig, {
     minimize: true,
     minimizer: [new TerserPlugin()],
   },
+  performance: {
+    hints: false,
+    maxEntrypointSize: 512000,
+    maxAssetSize: 512000,
+  },
   plugins: [
     new CleanWebpackPlugin(),
     // Add any other production-specific plugins here

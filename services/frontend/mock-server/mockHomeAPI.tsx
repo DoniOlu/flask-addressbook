@@ -1,14 +1,14 @@
 const apiRoutes = (app) => {
-  let contacts: Array<{
-    first_name: string;
-    last_name: string;
-    phone: string;
-    email: string;
-    address: string;
-    birthday: string;
-  }> = [];
-
   app.get("/contact/users", (req, res) => {
+    const contacts: Array<{
+      first_name: string;
+      last_name: string;
+      phone: string;
+      email: string;
+      address: string;
+      birthday: string;
+    }> = [];
+
     for (let i = 0; i < 5; i++) {
       contacts.push({
         first_name: `Contact ${i + 1}`,
@@ -20,8 +20,7 @@ const apiRoutes = (app) => {
       });
     }
 
-    res.json(contacts);
-    contacts = [];
+    res.json({ data: contacts, status: 200 });
   });
 
   app.get("/contact/:id", (req, res) => {
@@ -34,7 +33,7 @@ const apiRoutes = (app) => {
       birthday: "01-01-2024",
     };
 
-    res.send(contact);
+    res.send({ data: contact, status: 200 });
   });
 
   app.put("/contact/add", (req, res) => {
