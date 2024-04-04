@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { ChangeEvent, Component } from "react";
 import "./Home.css";
 import {
   Button,
@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
 } from "@mui/material";
 import axios from "axios";
 
@@ -30,15 +31,9 @@ const theme = createTheme({
   palette: { primary: { main: "rgba(255,255,255)" } },
 });
 
-const dialogTheme = createTheme({
-  components: {
-    MuiDialog: {
-      styleOverrides: {
-        root: {
-          background: "#23334d",
-        },
-      },
-    },
+const dialogButtonTheme = createTheme({
+  palette: {
+    primary: { main: "#2e5c99" },
   },
 });
 
@@ -94,37 +89,182 @@ class Home extends Component {
     this.setState({ selectedContact: contact });
   }
 
-  handleSubmit(): void {
-    this.toggleAddDialog();
-  }
+  handleSubmit = async () => {
+    const { contactForm } = this.state;
+    await axios.put("/contact/add", contactForm).then(() => {
+      this.toggleAddDialog();
+    });
+  };
 
   toggleAddDialog(): void {
     const { showAddDialog: prevShowAddDialog } = this.state;
     this.setState({ showAddDialog: !prevShowAddDialog });
   }
 
-  validateForm(): void {
-    const {
-      contactForm: { first_name, phone },
-    } = this.state;
-    this.setState({ enableSave: first_name && phone });
+  validateForm(form: IContact): boolean {
+    const { first_name, phone } = form;
+
+    return first_name !== "" && phone !== "" && phone.length === 10;
   }
 
+  handleFirstNameChange = (name: string) => {
+    const { contactForm: prevForm } = this.state;
+    const updatedForm = { ...prevForm, first_name: name };
+    this.setState({
+      contactForm: updatedForm,
+      enableSave: this.validateForm(updatedForm),
+    });
+  };
+
+  handleLastNameChange = (name: string) => {
+    const { contactForm: prevForm } = this.state;
+    const updatedForm = { ...prevForm, last_name: name };
+    this.setState({ contactForm: updatedForm });
+  };
+
+  handlePhoneChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (Number.isNaN(event.target.value) || event.target.value.length > 10) {
+      event.preventDefault();
+    } else {
+      const { contactForm: prevForm } = this.state;
+      const digits = event.target.value;
+      const updatedForm = { ...prevForm, phone: digits };
+      this.setState({
+        contactForm: updatedForm,
+        enableSave: this.validateForm(updatedForm),
+      });
+    }
+  };
+
+  handleAddressChange = (value: string) => {
+    const { contactForm: prevForm } = this.state;
+    const updatedForm = { ...prevForm, address: value };
+    this.setState({ contactForm: updatedForm });
+  };
+
+  handleBirthdayChange = (date: Date) => {};
+
   render(): React.ReactNode {
-    const { contacts, selectedContact, showAddDialog, enableSave } = this.state;
+    const {
+      contacts,
+      selectedContact,
+      showAddDialog,
+      enableSave,
+      contactForm: { first_name, last_name, address, phone, email },
+    } = this.state;
+
     return (
       <div className="address-container">
-        <Dialog open={showAddDialog} onClose={() => this.toggleAddDialog()}>
+        <Dialog
+          open={showAddDialog}
+          onClose={() => this.toggleAddDialog()}
+          PaperProps={{
+            style: {
+              backgroundColor: "#23334d",
+              color: "white",
+              minWidth: "60vh",
+              minHeight: "50vh",
+            },
+          }}
+        >
           <DialogTitle>{"Add Contact"}</DialogTitle>
-          <DialogContent className="contact-dialog"></DialogContent>
+          <DialogContent className="contact-dialog-content">
+            <TextField
+              id="first_name_input"
+              variant="outlined"
+              label="First Name"
+              value={first_name}
+              sx={{ fieldSet: { borderColor: "white" } }}
+              InputLabelProps={{
+                sx: { color: "#6e6e6e", "&:active color": "white" },
+              }}
+              InputProps={{
+                sx: { color: "white" },
+              }}
+              onChange={({ target: { value } }) => {
+                this.handleFirstNameChange(value);
+              }}
+            />
+            <TextField
+              id="last_name_input"
+              variant="outlined"
+              label="Last Name"
+              value={last_name}
+              sx={{ fieldSet: { borderColor: "white" } }}
+              InputLabelProps={{ sx: { color: "#6e6e6e" } }}
+              InputProps={{
+                sx: { color: "white" },
+              }}
+              onChange={({ target: { value } }) => {
+                this.handleLastNameChange(value);
+              }}
+            />
+            <TextField
+              id="phone_input"
+              variant="outlined"
+              label="(xxx)-xxx-xxxx"
+              value={phone}
+              sx={{ fieldSet: { borderColor: "white" } }}
+              InputLabelProps={{ sx: { color: "#6e6e6e" } }}
+              InputProps={{
+                sx: { color: "white" },
+              }}
+              onChange={(event) => {
+                this.handlePhoneChange(event);
+              }}
+            />
+            <TextField
+              id="email_input"
+              variant="outlined"
+              label="Email"
+              value={email}
+              sx={{ fieldSet: { borderColor: "white" } }}
+              InputLabelProps={{ sx: { color: "#6e6e6e" } }}
+              InputProps={{
+                sx: { color: "white" },
+              }}
+            />
+            <TextField
+              id="address_input"
+              variant="outlined"
+              label="Address"
+              value={address}
+              sx={{ fieldSet: { borderColor: "white" } }}
+              InputLabelProps={{ sx: { color: "#6e6e6e" } }}
+              InputProps={{
+                sx: { color: "white" },
+              }}
+            />
+          </DialogContent>
 
           <DialogActions>
-            <Button onClick={() => this.handleSubmit()} disabled={!enableSave}>
-              Add
-            </Button>
-            <Button onClick={() => this.toggleAddDialog()} autoFocus>
-              Cancel
-            </Button>
+            <ThemeProvider theme={dialogButtonTheme}>
+              <Button
+                sx={{
+                  background: "#4681cf",
+                  color: "white",
+                  "&.Mui-disabled": { background: "#323d4a", color: "#858585" },
+                }}
+                color="primary"
+                onClick={() => this.handleSubmit()}
+                disabled={!enableSave}
+              >
+                Add
+              </Button>
+              <Button
+                sx={{
+                  background: "#4681cf",
+                  color: "white",
+                }}
+                color="primary"
+                onClick={() => this.toggleAddDialog()}
+                autoFocus
+              >
+                Cancel
+              </Button>
+            </ThemeProvider>
           </DialogActions>
         </Dialog>
         <div className="address-side-menu">
