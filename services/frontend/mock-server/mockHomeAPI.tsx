@@ -37,15 +37,21 @@ const apiRoutes = (app) => {
   });
 
   app.put("/contact/add", (req, res) => {
-    res.status(200);
+    setTimeout(() => {
+      res.status(200).send();
+    }, 2000);
   });
 
   app.post("/contact/edit/:id", (req, res) => {
-    res.status(200);
+    setTimeout(() => {
+      res.status(200).send();
+    }, 2000);
   });
 
   app.delete("/contact/delete/:id", (req, res) => {
-    res.status(200);
+    setTimeout(() => {
+      res.status(200).send();
+    }, 2000);
   });
 };
 

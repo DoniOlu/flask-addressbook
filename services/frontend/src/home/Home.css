@@ -30,7 +30,21 @@
 }
 
 .contact-dialog {
-  min-height: 75vh;
-  min-width: 60vh;
-  background-color: #23334d;
+  background: #23334d;
 }
+
+.contact-dialog-content {
+  background-color: #313f55;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.dialog-button {
+  color: white;
+}
+
+.dialog-button:disabled {
+  color: white;
+}
+
