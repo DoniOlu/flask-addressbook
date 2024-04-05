@@ -3,11 +3,11 @@ const apiRoutes = (app) => {
     const contacts: Array<{
       id: number;
       first_name: string;
-      last_name: string;
+      last_name: string | null;
       phone: string;
-      email: string;
+      email: string | null;
       address: string;
-      birthday: string;
+      birthday: string | null;
     }> = [];
 
     for (let i = 0; i < 5; i++) {
@@ -21,6 +21,16 @@ const apiRoutes = (app) => {
         birthday: "01-01-2024",
       });
     }
+
+    contacts.push({
+      id: 123412,
+      first_name: `Contact ${6}`,
+      last_name: null,
+      phone: "1234567890",
+      email: null,
+      address: "123 Fake Street, Houston, TX 77044",
+      birthday: null,
+    });
 
     res.json({ data: contacts, status: 200 });
   });

@@ -97,16 +97,23 @@ class Home extends Component {
 
   handleSubmit = async () => {
     const { contactForm, isEditing } = this.state;
+    let payload: { [key: string]: any } = {};
 
-    const payload = Object.fromEntries(
-      Object.entries(contactForm).map(([key, value]) => {
-        if (value === "") {
-          return [key, null];
-        }
+    if (isEditing) {
+      payload = Object.fromEntries(
+        Object.entries(contactForm).filter(([_, value]) => value !== null)
+      );
+    } else {
+      payload = Object.fromEntries(
+        Object.entries(contactForm).map(([key, value]) => {
+          if (value === "") {
+            return [key, null];
+          }
 
-        return [key, value];
-      })
-    );
+          return [key, value];
+        })
+      );
+    }
 
     if (isEditing) {
       await axios.post(`/contact/edit/${payload.id}`, payload).then(() => {
@@ -328,14 +335,18 @@ class Home extends Component {
         <div className="address-details">
           {selectedContact && (
             <>
-              {Object.entries(selectedContact).map((value) => (
-                <List sx={{ color: "white" }}>
-                  <ListItem>
-                    <ListItemText primary={value[1]} />
-                  </ListItem>
-                  <Divider component="li" />
-                </List>
-              ))}
+              {Object.entries(selectedContact).map((value) => {
+                if (value[0] === "id") return <> </>;
+
+                return (
+                  <List sx={{ color: "white" }}>
+                    <ListItem>
+                      <ListItemText primary={value[1]} />
+                    </ListItem>
+                    <Divider component="li" />
+                  </List>
+                );
+              })}
             </>
           )}
           {selectedContact && (
