@@ -1,6 +1,7 @@
 const apiRoutes = (app) => {
   app.get("/contact/users", (req, res) => {
     const contacts: Array<{
+      id: number;
       first_name: string;
       last_name: string;
       phone: string;
@@ -11,6 +12,7 @@ const apiRoutes = (app) => {
 
     for (let i = 0; i < 5; i++) {
       contacts.push({
+        id: 1234135 + 4 * i,
         first_name: `Contact ${i + 1}`,
         last_name: "Last Name",
         phone: "1234567890",
@@ -25,6 +27,7 @@ const apiRoutes = (app) => {
 
   app.get("/contact/:id", (req, res) => {
     const contact = {
+      id: 12424151,
       first_name: `Contact Name`,
       last_name: "Last Name",
       phone: "1234567890",
