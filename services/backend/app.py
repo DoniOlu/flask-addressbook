@@ -128,7 +128,8 @@ def add_contact():
         cur.close()
         conn.close()
         return {'status': 200}
-    except: 
+    except Exception as error: 
+        print('Error:', error)
         return {'status': 500}
 
 

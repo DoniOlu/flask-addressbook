@@ -77,12 +77,16 @@ class Home extends Component {
     enableSave: false,
   };
 
-  componentDidMount = async () => {
+  fetchContactData = async () => {
     const response = await axios.get("/contact/users").then(({ data }) => {
       return data;
     });
 
     this.setState({ contacts: response.data });
+  };
+
+  componentDidMount = async () => {
+    this.fetchContactData();
   };
 
   handleSelectContact(contact: IContact): void {
@@ -91,8 +95,20 @@ class Home extends Component {
 
   handleSubmit = async () => {
     const { contactForm } = this.state;
-    await axios.put("/contact/add", contactForm).then(() => {
+
+    const payload = Object.fromEntries(
+      Object.entries(contactForm).map(([key, value]) => {
+        if (value === "") {
+          return [key, null];
+        }
+
+        return [key, value];
+      })
+    );
+
+    await axios.put("/contact/add", payload).then(() => {
       this.toggleAddDialog();
+      this.fetchContactData();
     });
   };
 
