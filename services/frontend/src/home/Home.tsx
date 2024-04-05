@@ -62,6 +62,7 @@ class Home extends Component {
     showAddDialog: boolean;
     contactForm: IContact;
     enableSave: boolean;
+    isEditing: boolean;
   } = {
     contacts: [],
     selectedContact: null,
@@ -75,6 +76,7 @@ class Home extends Component {
       birthday: "",
     },
     enableSave: false,
+    isEditing: false,
   };
 
   fetchContactData = async () => {
@@ -94,7 +96,7 @@ class Home extends Component {
   }
 
   handleSubmit = async () => {
-    const { contactForm } = this.state;
+    const { contactForm, isEditing } = this.state;
 
     const payload = Object.fromEntries(
       Object.entries(contactForm).map(([key, value]) => {
@@ -106,15 +108,31 @@ class Home extends Component {
       })
     );
 
-    await axios.put("/contact/add", payload).then(() => {
-      this.toggleAddDialog();
-      this.fetchContactData();
-    });
+    if (isEditing) {
+      await axios.post(`/contact/edit/${payload.id}`, payload).then(() => {
+        this.toggleAddDialog();
+        this.fetchContactData();
+      });
+    } else {
+      await axios.put("/contact/add", payload).then(() => {
+        this.toggleAddDialog();
+        this.fetchContactData();
+      });
+    }
   };
 
   toggleAddDialog(): void {
     const { showAddDialog: prevShowAddDialog } = this.state;
-    this.setState({ showAddDialog: !prevShowAddDialog });
+    this.setState({ showAddDialog: !prevShowAddDialog, isEditing: false });
+  }
+
+  toggleEditDialog(selectedContact: IContact): void {
+    const { showAddDialog: prevShowAddDialog } = this.state;
+    this.setState({
+      showAddDialog: !prevShowAddDialog,
+      contactForm: { ...selectedContact },
+      isEditing: !prevShowAddDialog,
+    });
   }
 
   validateForm(form: IContact): boolean {
@@ -169,6 +187,7 @@ class Home extends Component {
       showAddDialog,
       enableSave,
       contactForm: { first_name, last_name, address, phone, email },
+      isEditing,
     } = this.state;
 
     return (
@@ -267,7 +286,7 @@ class Home extends Component {
                 onClick={() => this.handleSubmit()}
                 disabled={!enableSave}
               >
-                Add
+                {isEditing ? "Edit" : "Add"}
               </Button>
               <Button
                 sx={{
@@ -318,6 +337,18 @@ class Home extends Component {
                 </List>
               ))}
             </>
+          )}
+          {selectedContact && (
+            <div className="address-details-footer">
+              <Button
+                sx={{ background: "#9c9c9c", color: "white" }}
+                onClick={() => {
+                  this.toggleEditDialog(selectedContact);
+                }}
+              >
+                Edit
+              </Button>
+            </div>
           )}
         </div>
       </div>
