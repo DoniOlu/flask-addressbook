@@ -63,6 +63,7 @@ class Home extends Component {
     contactForm: IContact;
     enableSave: boolean;
     isEditing: boolean;
+    isDeleting: boolean;
   } = {
     contacts: [],
     selectedContact: null,
@@ -77,6 +78,7 @@ class Home extends Component {
     },
     enableSave: false,
     isEditing: false,
+    isDeleting: false,
   };
 
   fetchContactData = async () => {
@@ -187,6 +189,21 @@ class Home extends Component {
 
   handleBirthdayChange = (date: Date) => {};
 
+  handleDeleteContact = async () => {
+    const { selectedContact } = this.state;
+
+    await axios.delete(`/contact/delete/${selectedContact?.id}`).then(() => {
+      this.toggleDeleteDialog();
+      this.fetchContactData();
+    });
+  };
+
+  toggleDeleteDialog = () => {
+    const { isDeleting: prevIsDeleting } = this.state;
+
+    this.setState({ isDeleting: !prevIsDeleting });
+  };
+
   render(): React.ReactNode {
     const {
       contacts,
@@ -195,10 +212,54 @@ class Home extends Component {
       enableSave,
       contactForm: { first_name, last_name, address, phone, email },
       isEditing,
+      isDeleting,
     } = this.state;
 
     return (
       <div className="address-container">
+        <Dialog
+          open={isDeleting}
+          onClose={() => this.toggleDeleteDialog()}
+          PaperProps={{
+            style: {
+              backgroundColor: "#23334d",
+              color: "white",
+              minWidth: "20vh",
+              minHeight: "15vh",
+            },
+          }}
+        >
+          <DialogTitle>Delete Contact</DialogTitle>
+          <DialogContent>
+            Are you sure that you want to remove this contact?
+          </DialogContent>
+          <DialogActions>
+            <ThemeProvider theme={dialogButtonTheme}>
+              <Button
+                sx={{
+                  background: "#4681cf",
+                  color: "white",
+                  "&.Mui-disabled": { background: "#323d4a", color: "#858585" },
+                }}
+                color="primary"
+                onClick={() => this.handleDeleteContact()}
+              >
+                Ok
+              </Button>
+              <Button
+                sx={{
+                  background: "#4681cf",
+                  color: "white",
+                }}
+                color="primary"
+                onClick={() => this.toggleDeleteDialog()}
+                autoFocus
+              >
+                Cancel
+              </Button>
+            </ThemeProvider>
+          </DialogActions>
+        </Dialog>
         <Dialog
           open={showAddDialog}
           onClose={() => this.toggleAddDialog()}
@@ -358,6 +419,14 @@ class Home extends Component {
                 }}
               >
                 Edit
+              </Button>
+              <Button
+                sx={{ background: "#9c9c9c", color: "white" }}
+                onClick={() => {
+                  this.toggleDeleteDialog();
+                }}
+              >
+                Delete
               </Button>
             </div>
           )}
