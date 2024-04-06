@@ -86,7 +86,7 @@ class Home extends Component {
       return data;
     });
 
-    this.setState({ contacts: response.data });
+    this.setState({ contacts: response.data, selectedContact: null });
   };
 
   componentDidMount = async () => {
