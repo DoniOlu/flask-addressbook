@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.10.9
+FROM --platform=linux/amd64 python:3.10.9
 
 # set working directory
 WORKDIR /flask-addressbook/backend
@@ -18,3 +18,5 @@ RUN pip install -r requirements.txt
 
 # 
 CMD ["flask", "run", "--host=0.0.0.0"]
+
+EXPOSE 5001

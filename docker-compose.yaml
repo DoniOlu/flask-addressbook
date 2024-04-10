@@ -5,13 +5,10 @@ services:
     build:
       context: ./services/frontend
       dockerfile: Dockerfile
-    ports:
-      - 3001:3000
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - REACT_APP_BACKEND_SERVICE_URL=http://localhost:5000
-    # depends_on:
-    #   - backend
+    image: frontend-address-book
 
   backend:
     build:
@@ -19,3 +16,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - 5001:5000
+    image: backend-address-book
+    volumes:
+      - ~/.aws:/root/.aws
+    depends_on:
+      frontend:
+        condition: service_completed_successfully

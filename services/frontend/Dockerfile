@@ -1,5 +1,5 @@
 # pull official base image
-FROM node:20.2.0 AS builder
+FROM --platform=linux/amd64 node:20.2.0 AS builder
 
 # set working directory
 WORKDIR /flask-addressbook/frontend
@@ -15,4 +15,4 @@ RUN npm install
 COPY . .
 
 # build app
-CMD ["npm", "build"]
+CMD ["npm", "run", "build"]

@@ -5,7 +5,7 @@ import json
 import psycopg2, psycopg2.extras
 from flask import Flask, render_template, jsonify, make_response, request
 
-app = Flask(__name__, static_url_path='', static_folder='../frontend/dist', template_folder='../frontend/public'
+app = Flask(__name__, static_url_path='', static_folder='static', template_folder='static'
             )
 
 def get_secret():
@@ -20,6 +20,7 @@ def get_secret():
     client = session.client(
         aws_access_key_id=credentials.access_key,
         aws_secret_access_key=credentials.secret_key,
+        aws_session_token=credentials.token,
         service_name='secretsmanager',
         region_name=region_name
     )
