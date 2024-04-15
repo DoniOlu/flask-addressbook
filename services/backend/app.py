@@ -3,10 +3,7 @@ from botocore.exceptions import ClientError
 import os
 import json
 import psycopg2, psycopg2.extras
-from flask import Flask, render_template, jsonify, make_response, request
-
-app = Flask(__name__, static_url_path='', static_folder='static', template_folder='static'
-            )
+from flask import Flask, request
 
 def get_secret():
 
@@ -48,17 +45,22 @@ def get_db_connection():
         port=5432)
     return conn
 
+app = Flask(__name__, static_url_path='', static_folder='static', template_folder='static')
 
-# Database connection
-conn = psycopg2.connect(
-        host='address-book-db-1.caj7nng7virt.us-east-2.rds.amazonaws.com',
-        database='postgres',
-        user=json.loads(get_secret())['username'],
-        password=json.loads(get_secret())['password'],
-        port=5432)
+if os.environ.get('FLASK_ENV') == 'production':
+    app.config.from_object('config.ProductionConfig')
+else:
+    app.config.from_object('config.DevelopmentConfig')
+
+# Function to create a connection to the database
+def connect_to_database():
+    return psycopg2.connect(**app.config['DATABASE_PARAMS'])
+
+# Initialize the database connection
+db_connection = connect_to_database()
 
 # Open a cursor to perform database operations
-cur = conn.cursor()
+cur = db_connection.cursor()
 
 cur.execute('DROP TABLE IF EXISTS ADDRESS_BOOK;')
 cur.execute('CREATE TABLE ADDRESS_BOOK (id serial PRIMARY KEY,'
@@ -76,10 +78,10 @@ cur.execute('INSERT INTO ADDRESS_BOOK (first_name, phone)'
              '123-456-7890')
             )
 
-conn.commit()
+db_connection.commit()
 
 cur.close()
-conn.close()
+db_connection.close()
 
 @app.route('/')
 def hello():
@@ -167,3 +169,5 @@ def delete_contact(user_id):
         return {'status': 500}
     
 
+def create_app():
+    return app
