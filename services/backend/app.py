@@ -75,7 +75,7 @@ cur.execute('CREATE TABLE ADDRESS_BOOK (id serial PRIMARY KEY,'
 cur.execute('INSERT INTO ADDRESS_BOOK (first_name, phone)'
             'VALUES (%s, %s);',
             ('Doni D',
-             '123-456-7890')
+             '1234567890')
             )
 
 db_connection.commit()
