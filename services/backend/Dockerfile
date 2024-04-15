@@ -17,6 +17,6 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # 
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["waitress-serve", "--host=0.0.0.0", "app:create_app"]
 
 EXPOSE 5001
