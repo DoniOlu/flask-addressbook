@@ -5,46 +5,6 @@ import json
 import psycopg2, psycopg2.extras
 from flask import Flask, request
 
-def get_secret():
-
-    secret_name = "rds!db-9bf2c9c5-1fa1-4456-8dd2-f73620bb3854"
-    region_name = "us-east-2"
-
-    # Create a Secrets Manager client
-    session = boto3.session.Session()
-    credentials = session.get_credentials().get_frozen_credentials()
-
-    client = session.client(
-        aws_access_key_id=credentials.access_key,
-        aws_secret_access_key=credentials.secret_key,
-        aws_session_token=credentials.token,
-        service_name='secretsmanager',
-        region_name=region_name
-    )
-
-    try:
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name
-        )
-    except ClientError as e:
-        # For a list of exceptions thrown, see
-        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-        raise e
-
-    return get_secret_value_response['SecretString']
-
-def get_db_connection():
-    db_credentials = json.loads(get_secret())
-    user = db_credentials['username']
-    password = db_credentials['password']
-    conn = psycopg2.connect(
-        host='address-book-db-1.caj7nng7virt.us-east-2.rds.amazonaws.com',
-        database='postgres',
-        user=user,
-        password=password,
-        port=5432)
-    return conn
-
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='static')
 
 if os.environ.get('FLASK_ENV') == 'production':
@@ -90,7 +50,7 @@ def hello():
 @app.route("/contact/users", methods=["GET"])
 def get_all_contacts():
     try:
-        conn = get_db_connection()
+        conn = connect_to_database()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute('SELECT * FROM ADDRESS_BOOK;')
         contacts = cur.fetchall()
@@ -105,7 +65,7 @@ def get_all_contacts():
 def get_contact(user_id):
     print('User ID:', user_id)
     try:
-        conn = get_db_connection()
+        conn = connect_to_database()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute('SELECT * FROM ADDRESS_BOOK WHERE "id" = (%s);', (user_id))
         contact = cur.fetchall()
@@ -120,7 +80,7 @@ def get_contact(user_id):
 def add_contact():
     try:
         request_payload = request.get_json()
-        conn = get_db_connection()
+        conn = connect_to_database()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute('INSERT INTO ADDRESS_BOOK (first_name, last_name, phone, email, address, birthday)'
                     'VALUES (%s, %s, %s, %s, %s, %s);',
@@ -142,7 +102,7 @@ def edit_contact(user_id):
     try:
         request_payload = request.get_json()
         update_columns = ", ".join(f"{k} = '{v}'" for k, v in request_payload.items())
-        conn = get_db_connection()
+        conn = connect_to_database()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute('UPDATE ADDRESS_BOOK SET ' + update_columns + ' WHERE "id" = (%s);', (user_id))
         conn.commit()
@@ -157,7 +117,7 @@ def edit_contact(user_id):
 @app.route("/contact/delete/<user_id>", methods=["DELETE"])
 def delete_contact(user_id):
     try:
-        conn = get_db_connection()
+        conn = connect_to_database()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute('DELETE FROM ADDRESS_BOOK WHERE "id" = (%s);', (user_id))
         conn.commit()
