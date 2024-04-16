@@ -16,6 +16,21 @@
   border-width: 1px;
 }
 
+.address-side-menu-action-bar {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.address-details-container {
+  width: 60%;
+  align-self: flex-start;
+}
+
+.address-details-header {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
 .address-details {
   display: inherit;
   flex-direction: column;
