@@ -63,11 +63,11 @@ class DevelopmentConfig:
     load_dotenv()
     DEBUG = True
     DATABASE_PARAMS = {
-        'host': os.getenv("LOCAL_DB_HOST"),
-        'database': os.getenv("LOCAL_DB_NAME"),
-        'user': os.getenv("LOCAL_DB_USER"),
-        'password': os.getenv("LOCAL_DB_PASS"),
-        'port': 5432
+      'host': os.getenv("LOCAL_DB_HOST"),
+      'database': os.getenv("LOCAL_DB_NAME"),
+      'user': os.getenv("LOCAL_DB_USER"),
+      'password': os.getenv("LOCAL_DB_PASS"),
+      'port': 5432
     }
 
 class ProductionConfig:
@@ -79,9 +79,9 @@ class ProductionConfig:
     host = db_info['database_host']
     DEBUG = False
     DATABASE_PARAMS = {
-        'host': host,
-        'database': database,
-        'user':user,
-        'password': password,
-        'port': 5432
+      'host': host,
+      'database': database,
+      'user':user,
+      'password': password,
+      'port': 5432
     }

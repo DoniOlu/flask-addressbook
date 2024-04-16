@@ -135,7 +135,7 @@ class Home extends Component {
     this.setState({ showAddDialog: !prevShowAddDialog, isEditing: false });
   }
 
-  toggleEditDialog(selectedContact: IContact): void {
+  toggleEditDialog(selectedContact: IContact | null): void {
     const { showAddDialog: prevShowAddDialog } = this.state;
     this.setState({
       showAddDialog: !prevShowAddDialog,
@@ -393,43 +393,45 @@ class Home extends Component {
             </ThemeProvider>
           ))}
         </div>
-        <div className="address-details">
-          {selectedContact && (
-            <>
-              {Object.entries(selectedContact).map((value) => {
-                if (value[0] === "id") return <> </>;
+        <div className="address-details-container">
+          <div className="address-details-header">
+            <Button
+              sx={{ background: "#9c9c9c", color: "white" }}
+              onClick={() => {
+                this.toggleEditDialog(selectedContact);
+              }}
+              disabled={!selectedContact}
+            >
+              Edit
+            </Button>
+            <Button
+              sx={{ background: "#9c9c9c", color: "white" }}
+              onClick={() => {
+                this.toggleDeleteDialog();
+              }}
+              disabled={!selectedContact}
+            >
+              Delete
+            </Button>
+          </div>
+          <div className="address-details">
+            {selectedContact && (
+              <>
+                {Object.entries(selectedContact).map((value) => {
+                  if (value[0] === "id") return <> </>;
 
-                return (
-                  <List sx={{ color: "white" }}>
-                    <ListItem>
-                      <ListItemText primary={value[1]} />
-                    </ListItem>
-                    <Divider component="li" />
-                  </List>
-                );
-              })}
-            </>
-          )}
-          {selectedContact && (
-            <div className="address-details-footer">
-              <Button
-                sx={{ background: "#9c9c9c", color: "white" }}
-                onClick={() => {
-                  this.toggleEditDialog(selectedContact);
-                }}
-              >
-                Edit
-              </Button>
-              <Button
-                sx={{ background: "#9c9c9c", color: "white" }}
-                onClick={() => {
-                  this.toggleDeleteDialog();
-                }}
-              >
-                Delete
-              </Button>
-            </div>
-          )}
+                  return (
+                    <List sx={{ color: "white" }}>
+                      <ListItem>
+                        <ListItemText primary={value[1]} />
+                      </ListItem>
+                      <Divider component="li" />
+                    </List>
+                  );
+                })}
+              </>
+            )}
+          </div>
         </div>
       </div>
     );
