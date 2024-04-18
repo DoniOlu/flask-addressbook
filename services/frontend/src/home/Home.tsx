@@ -14,8 +14,13 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Box,
 } from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
+import { Dayjs } from "dayjs";
+import { format } from "date-fns";
 
 interface IContact {
   id?: string;
@@ -24,7 +29,7 @@ interface IContact {
   phone: string;
   email: string | null;
   address: string | null;
-  birthday: string | null;
+  birthday: Dayjs | null;
 }
 
 const theme = createTheme({
@@ -74,7 +79,7 @@ class Home extends Component {
       phone: "",
       email: "",
       address: "",
-      birthday: "",
+      birthday: null,
     },
     enableSave: false,
     isEditing: false,
@@ -187,7 +192,19 @@ class Home extends Component {
     this.setState({ contactForm: updatedForm });
   };
 
-  handleBirthdayChange = (date: Date) => {};
+  handleBirthdayChange = (value: Dayjs | null) => {
+    const { contactForm: prevForm } = this.state;
+    if (value) {
+      const updatedForm = { ...prevForm, birthday: value.format("MM-DD-YYYY") };
+      this.setState({ contactForm: updatedForm });
+    }
+  };
+
+  handleEmailChange = (value: string) => {
+    const { contactForm: prevForm } = this.state;
+    const updatedForm = { ...prevForm, email: value };
+    this.setState({ contactForm: updatedForm });
+  };
 
   handleDeleteContact = async () => {
     const { selectedContact } = this.state;
@@ -210,7 +227,7 @@ class Home extends Component {
       selectedContact,
       showAddDialog,
       enableSave,
-      contactForm: { first_name, last_name, address, phone, email },
+      contactForm: { first_name, last_name, address, phone, email, birthday },
       isEditing,
       isDeleting,
     } = this.state;
@@ -328,6 +345,9 @@ class Home extends Component {
               InputProps={{
                 sx: { color: "white" },
               }}
+              onChange={({ target: { value } }) => {
+                this.handleEmailChange(value);
+              }}
             />
             <TextField
               id="address_input"
@@ -339,7 +359,23 @@ class Home extends Component {
               InputProps={{
                 sx: { color: "white" },
               }}
+              onChange={({ target: { value } }) => {
+                this.handleAddressChange(value);
+              }}
             />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                sx={{
+                  fieldSet: { borderColor: "white" },
+                  svg: { color: "white" },
+                  input: { color: "white" },
+                }}
+                value={birthday}
+                onChange={(value) => {
+                  this.handleBirthdayChange(value);
+                }}
+              />
+            </LocalizationProvider>
           </DialogContent>
 
           <DialogActions>
@@ -394,7 +430,7 @@ class Home extends Component {
           ))}
         </div>
         <div className="address-details-container">
-          <div className="address-details-header">
+          <div className="address-details-header" id="details-header">
             <Button
               sx={{ background: "#9c9c9c", color: "white" }}
               onClick={() => {
